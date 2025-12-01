@@ -1,0 +1,64 @@
+import { prisma } from "@repo/db";
+import { Request , Response } from "express"
+
+export const Credentials = async (req:Request , res:Response) => {
+    try{
+    const { title ,  platform , data } = req.body;
+    const userId = req.user?.id;
+
+    const creds = await prisma.credentials.create({
+        data:{
+            title,
+            platform,
+            data,
+            user: { connect: { id : userId} }
+        }
+    })
+
+    res.status(200).json({creds})
+}catch(error:unknown){
+    console.log(error)
+    res.status(404).json({Message: "Invalid Credentials"})
+}
+
+}
+
+
+export const getallCredentials = async (req:Request , res:Response) => {
+
+    console.log("req recd")
+    try{
+    const userId = req.user?.id;
+
+    const creds = await prisma.credentials.findMany({
+        where:{
+            userId:userId
+        }
+    })
+
+    res.status(200).json({creds})
+}catch(error:unknown){
+    console.log(error)
+    res.status(404).json({Message: "Auth failed"})
+}
+
+}
+
+
+export const deleteCredentials = async (req:Request , res:Response) => {
+    try{
+    const { id } = req.body;
+
+    await prisma.credentials.delete({
+        where:{
+            id
+        }
+    })
+
+    res.status(200).json({Message:"Deleted Successfully"})
+}catch(error:unknown){
+    console.log(error)
+    res.status(404).json({Message: "Invalid Credentials"})
+}
+
+}
